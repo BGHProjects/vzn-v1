@@ -6,7 +6,12 @@ const FINGER_LOOKUP_INDICES: Record<string, number[]> = {
   pinky: [0, 17, 18, 19, 20],
 };
 
-const drawHands = (hands: any, ctx: any, showNames = false) => {
+const drawHands = (hands: any, ctx: any) => {
+  let rightIndexTipX = 0;
+  let rightIndexTipY = 0;
+  let leftIndexTipX = 0;
+  let leftIndexTipY = 0;
+
   if (hands.length <= 0) {
     return;
   }
@@ -24,33 +29,61 @@ const drawHands = (hands: any, ctx: any, showNames = false) => {
 
     for (let y = 0; y < hands[i].keypoints.length; y++) {
       const keypoint = hands[i].keypoints[y];
-      ctx.beginPath();
-      ctx.arc(keypoint.x, keypoint.y, 4, 0, 2 * Math.PI);
-      ctx.fill();
 
-      if (showNames) {
-        drawInvertedText(keypoint, ctx);
+      const isRightIndexTip =
+        keypoint.name === "index_finger_tip" && hands[i].handedness === "Right";
+      const isLeftIndexTip =
+        keypoint.name === "index_finger_tip" && hands[i].handedness === "Left";
+      const isRightMiddleTip =
+        keypoint.name === "middle_finger_tip" &&
+        hands[i].handedness === "Right";
+      const isLeftMiddleTip =
+        keypoint.name === "middle_finger_tip" && hands[i].handedness === "Left";
+
+      if (isRightIndexTip) {
+        rightIndexTipX = keypoint.x;
+        rightIndexTipY = keypoint.y;
       }
+
+      if (isLeftIndexTip) {
+        leftIndexTipX = keypoint.x;
+        leftIndexTipY = keypoint.y;
+      }
+
+      ctx.fillStyle = isRightIndexTip
+        ? "dodgerblue"
+        : isRightMiddleTip
+        ? "lime"
+        : isLeftIndexTip
+        ? "red"
+        : isLeftMiddleTip
+        ? "gold"
+        : "black";
+
+      ctx.beginPath();
+      ctx.arc(
+        keypoint.x,
+        keypoint.y,
+        isRightIndexTip || isRightMiddleTip || isLeftIndexTip || isLeftMiddleTip
+          ? 10
+          : 4,
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
     }
 
     const fingers = Object.keys(FINGER_LOOKUP_INDICES);
     for (let z = 0; z < fingers.length; z++) {
       const finger = fingers[z];
       const points = FINGER_LOOKUP_INDICES[finger].map(
-        (idx: any) => hands[i].keypoints[idx]
+        (idx: number) => hands[i].keypoints[idx]
       );
       drawPath(points, ctx);
     }
   }
-};
 
-const drawInvertedText = (keypoint: any, ctx: any) => {
-  ctx.save();
-  ctx.translate(keypoint.x - 10, keypoint.y);
-  ctx.rotate(-Math.PI / 1);
-  ctx.scale(1, -1);
-  ctx.fillText(keypoint.name, 0, 0);
-  ctx.restore();
+  return { rightIndexTipX, rightIndexTipY, leftIndexTipX, leftIndexTipY };
 };
 
 const drawPath = (points: any, ctx: any, closePath = false) => {
@@ -68,4 +101,4 @@ const drawPath = (points: any, ctx: any, closePath = false) => {
   ctx.stroke(region);
 };
 
-export { drawHands, drawInvertedText, drawPath };
+export { drawHands, drawPath };

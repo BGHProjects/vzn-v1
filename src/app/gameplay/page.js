@@ -1,5 +1,5 @@
 "use client";
-import { Center, Text, Button } from "@chakra-ui/react";
+import { Center, Text, Button, Box } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-webgl";
 import { drawHands } from "@/lib/utils";
@@ -16,6 +16,10 @@ tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm`
 );
 
+// These values are experimental, and should somehow be calculated programmatically
+const cameraMaxWidth = 640;
+const cameraMaxHeight = 480;
+
 const Gameplay = () => {
   const router = useRouter();
   const videoWidth = 20;
@@ -23,6 +27,11 @@ const Gameplay = () => {
   const detectorRef = useRef();
   const videoRef = useRef();
   const [ctx, setCtx] = useState();
+
+  const [rightIndexXPos, setRightIndexXPos] = useState(0);
+  const [rightIndexYPos, setRightIndexYPos] = useState(0);
+  const [leftIndexXPos, setLeftIndexXPos] = useState(0);
+  const [leftIndexYPos, setLeftIndexYPos] = useState(0);
 
   const initalise = async () => {
     videoRef.current = await setupVideo();
@@ -54,12 +63,52 @@ const Gameplay = () => {
       videoRef.current.videoWidth,
       videoRef.current.videoHeight
     );
-    drawHands(hands, ctx);
+    const { rightIndexTipX, rightIndexTipY, leftIndexTipX, leftIndexTipY } =
+      drawHands(hands, ctx);
+
+    setRightIndexXPos(leftIndexTipX);
+    setRightIndexYPos(leftIndexTipY);
+
+    setLeftIndexXPos(rightIndexTipX);
+    setLeftIndexYPos(rightIndexTipY);
   }, !!(detectorRef.current && videoRef.current && ctx));
 
   return (
     <Center w="100vw" h="100vh" bg="black" flexDirection={"column"}>
+      <Button w="200px" mt="20px" onClick={() => router.push("/")}>
+        Return to Main Menu
+      </Button>
       <Center
+        w="80vw"
+        maxW="800px"
+        h="100%"
+        bg="orange"
+        my="30px"
+        position="relative"
+      >
+        {/* Target Reticle */}
+        <Box
+          borderRadius="full"
+          bg="red"
+          boxSize="30px"
+          top={`${(rightIndexYPos / cameraMaxHeight) * 100}%`}
+          right={`${(rightIndexXPos / cameraMaxWidth) * 100}%`}
+          position="absolute"
+        ></Box>
+
+        {/* Player Position */}
+        <Box
+          borderRadius="10px"
+          bg="black"
+          boxSize="50px"
+          top={"90%"}
+          right={`${(leftIndexXPos / cameraMaxWidth) * 100}%`}
+          position="absolute"
+        ></Box>
+      </Center>
+      <Center
+        mt="auto"
+        mb="20px"
         w={`${videoWidth}vw`}
         h={`${videoWidth * (2 / 3)}vw`}
         bg="navy"
@@ -103,9 +152,6 @@ const Gameplay = () => {
           playsInline
         ></video>
       </Center>
-      <Button w="200px" mt="20px" onClick={() => router.push("/")}>
-        Return to Main Menu
-      </Button>
     </Center>
   );
 };
