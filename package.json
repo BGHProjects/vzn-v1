@@ -1,0 +1,33 @@
+{
+  "name": "vzn-v1",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/next-js": "^2.1.4",
+    "@chakra-ui/react": "^2.7.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mediapipe/hands": "^0.4.1675469240",
+    "@tensorflow-models/hand-pose-detection": "^2.0.0",
+    "@tensorflow/tfjs-backend-wasm": "^4.8.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.8.0",
+    "@tensorflow/tfjs-converter": "^4.8.0",
+    "@tensorflow/tfjs-core": "^4.8.0",
+    "@types/node": "20.3.3",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "eslint": "8.44.0",
+    "eslint-config-next": "13.4.7",
+    "framer-motion": "^10.12.18",
+    "next": "13.4.7",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.1.6"
+  }
+}
