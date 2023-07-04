@@ -7,10 +7,12 @@ const FINGER_LOOKUP_INDICES: Record<string, number[]> = {
 };
 
 const drawHands = (hands: any, ctx: any) => {
-  let rightIndexTipX = 0;
-  let rightIndexTipY = 0;
+  let palmX = 0;
+  let palmY = 0;
   let leftIndexTipX = 0;
   let leftIndexTipY = 0;
+
+  let firing = false;
 
   if (hands.length <= 0) {
     return;
@@ -30,43 +32,52 @@ const drawHands = (hands: any, ctx: any) => {
     for (let y = 0; y < hands[i].keypoints.length; y++) {
       const keypoint = hands[i].keypoints[y];
 
-      const isRightIndexTip =
-        keypoint.name === "index_finger_tip" && hands[i].handedness === "Right";
+      const mfd = "middle_finger_dip";
+      const mft = "middle_finger_tip";
+
+      if (keypoint.name === mfd && hands[i].handedness === "Left") {
+        const mdfy = keypoint.y;
+        const mftKeypoint = hands[i].keypoints.find(
+          (kp: any) => kp.name === mft
+        );
+
+        // Flipped because the y values increase from the top
+        if (mftKeypoint && mdfy > mftKeypoint.y) {
+          firing = true;
+        }
+      }
+
+      const isRightPalm =
+        keypoint.name === "wrist" && hands[i].handedness === "Right";
+
       const isLeftIndexTip =
         keypoint.name === "index_finger_tip" && hands[i].handedness === "Left";
-      const isRightMiddleTip =
-        keypoint.name === "middle_finger_tip" &&
-        hands[i].handedness === "Right";
       const isLeftMiddleTip =
         keypoint.name === "middle_finger_tip" && hands[i].handedness === "Left";
-
-      if (isRightIndexTip) {
-        rightIndexTipX = keypoint.x;
-        rightIndexTipY = keypoint.y;
-      }
 
       if (isLeftIndexTip) {
         leftIndexTipX = keypoint.x;
         leftIndexTipY = keypoint.y;
       }
 
-      ctx.fillStyle = isRightIndexTip
-        ? "dodgerblue"
-        : isRightMiddleTip
-        ? "lime"
-        : isLeftIndexTip
+      if (isRightPalm) {
+        palmX = keypoint.x;
+        palmY = keypoint.y;
+      }
+
+      ctx.fillStyle = isLeftIndexTip
         ? "red"
         : isLeftMiddleTip
         ? "gold"
+        : isRightPalm
+        ? "dodgerblue"
         : "black";
 
       ctx.beginPath();
       ctx.arc(
         keypoint.x,
         keypoint.y,
-        isRightIndexTip || isRightMiddleTip || isLeftIndexTip || isLeftMiddleTip
-          ? 10
-          : 4,
+        isLeftIndexTip || isLeftMiddleTip || isRightPalm ? 10 : 4,
         0,
         2 * Math.PI
       );
@@ -83,7 +94,13 @@ const drawHands = (hands: any, ctx: any) => {
     }
   }
 
-  return { rightIndexTipX, rightIndexTipY, leftIndexTipX, leftIndexTipY };
+  return {
+    palmX,
+    palmY,
+    leftIndexTipX,
+    leftIndexTipY,
+    firing,
+  };
 };
 
 const drawPath = (points: any, ctx: any, closePath = false) => {
