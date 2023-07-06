@@ -20,67 +20,21 @@ tfjsWasm.setWasmPaths(
 const cameraMaxWidth = 640;
 const cameraMaxHeight = 480;
 
-const playerYPosition = 85;
-
 const Gameplay = () => {
   const router = useRouter();
   const videoWidth = 20;
 
-  const detectorRef = useRef();
-  const videoRef = useRef();
-  const [ctx, setCtx] = useState();
+  const detectorRef = useRef<any>();
+  const videoRef = useRef<any>();
+  const [ctx, setCtx] = useState<any>();
 
   const [rightIndexXPos, setRightIndexXPos] = useState(0);
   const [rightIndexYPos, setRightIndexYPos] = useState(0);
-  const [palmXPos, setPalmXPos] = useState(0);
+  const [leftIndexXPos, setLeftIndexXPos] = useState(0);
+  const [leftIndexYPos, setLeftIndexYPos] = useState(0);
 
-  const [firing, setFiring] = useState(false);
-  const [projectilePosition, setProjectilePosition] = useState(playerYPosition);
-
-  const [playerRotation, setPlayerRotation] = useState(0);
-
-  // Projectile logic
-  const projectileRef = useRef(null);
-  const projectileSpeed = 2;
-
-  useEffect(() => {
-    const calculateRotation = () => {
-      const reticleY = (rightIndexYPos / cameraMaxHeight) * 100;
-      const reticleX = (rightIndexXPos / cameraMaxHeight) * 100 - 5;
-
-      const deltaX = reticleX - (palmXPos / cameraMaxWidth) * 100;
-      const deltaY = playerYPosition - reticleY;
-
-      const angle = (Math.atan2(deltaY, deltaX) * (180 / Math.PI) - 90) % 360;
-      setPlayerRotation(angle);
-    };
-
-    calculateRotation();
-  }, [rightIndexYPos, rightIndexXPos]);
-
-  useEffect(() => {
-    const animateProjectile = () => {
-      setProjectilePosition((prevPosition) => {
-        let newPosition = prevPosition - projectileSpeed;
-
-        if (newPosition < 0) {
-          newPosition = playerYPosition;
-        }
-
-        return newPosition;
-      });
-
-      requestAnimationFrame(animateProjectile);
-    };
-
-    animateProjectile();
-
-    return () => cancelAnimationFrame(animateProjectile);
-  }, []);
-
-  useEffect(() => {
-    if (!firing) setProjectilePosition(playerYPosition);
-  }, [firing]);
+  const [firingLeft, setFiringLeft] = useState(false);
+  const [firingRight, setFiringRight] = useState(false);
 
   const initalise = async () => {
     videoRef.current = await setupVideo();
@@ -94,35 +48,44 @@ const Gameplay = () => {
     initalise();
   }, []);
 
-  useAnimationFrame(async (delta) => {
+  useAnimationFrame(async (delta: any) => {
     const hands = await detectorRef.current.estimateHands(video, {
       flipHorizontal: false,
     });
 
-    ctx.clearRect(
-      0,
-      0,
-      videoRef.current.videoWidth,
-      videoRef.current.videoHeight
-    );
-    ctx.drawImage(
-      videoRef.current,
-      0,
-      0,
-      videoRef.current.videoWidth,
-      videoRef.current.videoHeight
-    );
-    const { palmX, leftIndexTipX, leftIndexTipY, firing } = drawHands(
-      hands,
-      ctx
-    );
+    if (ctx) {
+      ctx.clearRect(
+        0,
+        0,
+        videoRef.current.videoWidth,
+        videoRef.current.videoHeight
+      );
+      ctx.drawImage(
+        videoRef.current,
+        0,
+        0,
+        videoRef.current.videoWidth,
+        videoRef.current.videoHeight
+      );
+    }
 
+    const {
+      leftIndexTipX,
+      leftIndexTipY,
+      rightIndexTipX,
+      rightIndexTipY,
+      firingLeft,
+      firingRight,
+    } = drawHands(hands, ctx);
+
+    // For some reason, these have to be flipped?
     setRightIndexXPos(leftIndexTipX);
     setRightIndexYPos(leftIndexTipY);
+    setLeftIndexXPos(rightIndexTipX);
+    setLeftIndexYPos(rightIndexTipY);
 
-    setPalmXPos(palmX);
-
-    setFiring(firing);
+    setFiringLeft(firingLeft);
+    setFiringRight(firingRight);
   }, !!(detectorRef.current && videoRef.current && ctx));
 
   return (
@@ -138,7 +101,7 @@ const Gameplay = () => {
         my="30px"
         position="relative"
       >
-        {/* Target Reticle */}
+        {/* Right Target Reticle */}
         <Box
           borderRadius="full"
           bg="red"
@@ -148,33 +111,15 @@ const Gameplay = () => {
           position="absolute"
         ></Box>
 
-        {/* Player Position */}
+        {/* Left Target Reticle */}
         <Box
-          borderRadius="10px"
-          bg="transparent"
-          boxSize="50px"
-          top={`${playerYPosition}%`}
-          right={`${(palmXPos / cameraMaxWidth) * 100 - 5}%`}
+          borderRadius="full"
+          bg="purple"
+          boxSize="30px"
+          top={`${(leftIndexYPos / cameraMaxHeight) * 100}%`}
+          right={`${(leftIndexXPos / cameraMaxWidth) * 100 - 5}%`}
           position="absolute"
-          borderLeft="30px solid transparent"
-          borderRight="30px solid transparent"
-          borderBottom="60px solid green"
-          transform={`rotate(${playerRotation}deg)`}
-          transformOrigin="bottom center"
         ></Box>
-
-        {/* Projectile */}
-        {firing && (
-          <Center
-            borderRadius="full"
-            bg="dodgerblue"
-            boxSize="20px"
-            top={`${projectilePosition}%`}
-            right={`${(palmXPos / cameraMaxWidth) * 100 - 5}%`}
-            position="absolute"
-            ref={projectileRef}
-          ></Center>
-        )}
       </Center>
       <Center
         mt="auto"

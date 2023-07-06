@@ -7,16 +7,13 @@ const FINGER_LOOKUP_INDICES: Record<string, number[]> = {
 };
 
 const drawHands = (hands: any, ctx: any) => {
-  let palmX = 0;
-  let palmY = 0;
   let leftIndexTipX = 0;
   let leftIndexTipY = 0;
+  let rightIndexTipX = 0;
+  let rightIndexTipY = 0;
 
-  let firing = false;
-
-  if (hands.length <= 0) {
-    return;
-  }
+  let firingLeft = false;
+  let firingRight = false;
 
   hands.sort((hand1: any, hand2: any) => {
     if (hand1.handedness < hand2.handedness) return 1;
@@ -25,17 +22,21 @@ const drawHands = (hands: any, ctx: any) => {
   });
 
   for (let i = 0; i < hands.length; i++) {
-    ctx.fillStyle = hands[i].handedness === "Left" ? "black" : "Blue";
+    const rightHand = hands[i].handedness === "Right";
+    const leftHand = hands[i].handedness === "Left";
+
+    const mfd = "middle_finger_dip";
+    const mft = "middle_finger_tip";
+    const ift = "index_finger_tip";
+
+    ctx.fillStyle = leftHand ? "black" : "Blue";
     ctx.strokeStyle = "White";
     ctx.lineWidth = 2;
 
     for (let y = 0; y < hands[i].keypoints.length; y++) {
       const keypoint = hands[i].keypoints[y];
 
-      const mfd = "middle_finger_dip";
-      const mft = "middle_finger_tip";
-
-      if (keypoint.name === mfd && hands[i].handedness === "Left") {
+      if (keypoint.name === mfd && leftHand) {
         const mdfy = keypoint.y;
         const mftKeypoint = hands[i].keypoints.find(
           (kp: any) => kp.name === mft
@@ -43,41 +44,56 @@ const drawHands = (hands: any, ctx: any) => {
 
         // Flipped because the y values increase from the top
         if (mftKeypoint && mdfy > mftKeypoint.y) {
-          firing = true;
+          firingLeft = true;
         }
       }
 
-      const isRightPalm =
-        keypoint.name === "wrist" && hands[i].handedness === "Right";
+      /**
+       * Separate Left from Right, so each can be fired independently
+       */
+      if (keypoint.name === mfd && rightHand) {
+        const mdfy = keypoint.y;
+        const mftKeypoint = hands[i].keypoints.find(
+          (kp: any) => kp.name === mft
+        );
 
-      const isLeftIndexTip =
-        keypoint.name === "index_finger_tip" && hands[i].handedness === "Left";
-      const isLeftMiddleTip =
-        keypoint.name === "middle_finger_tip" && hands[i].handedness === "Left";
+        // Flipped because the y values increase from the top
+        if (mftKeypoint && mdfy > mftKeypoint.y) {
+          firingRight = true;
+        }
+      }
+
+      const isLeftIndexTip = keypoint.name === ift && leftHand;
+      const isLeftMiddleTip = keypoint.name === mft && leftHand;
+
+      const isRightIndexTip = keypoint.name === ift && rightHand;
+      const isRightMiddleTip = keypoint.name === mft && rightHand;
 
       if (isLeftIndexTip) {
         leftIndexTipX = keypoint.x;
         leftIndexTipY = keypoint.y;
       }
 
-      if (isRightPalm) {
-        palmX = keypoint.x;
-        palmY = keypoint.y;
+      if (isRightIndexTip) {
+        rightIndexTipX = keypoint.x;
+        rightIndexTipY = keypoint.y;
       }
 
       ctx.fillStyle = isLeftIndexTip
         ? "red"
-        : isLeftMiddleTip
+        : isRightIndexTip
+        ? "purple"
+        : isLeftMiddleTip || isRightMiddleTip
         ? "gold"
-        : isRightPalm
-        ? "dodgerblue"
         : "black";
 
       ctx.beginPath();
       ctx.arc(
         keypoint.x,
         keypoint.y,
-        isLeftIndexTip || isLeftMiddleTip || isRightPalm ? 10 : 4,
+        isLeftIndexTip || isLeftMiddleTip || isRightIndexTip || isRightMiddleTip
+          ? 10
+          : 4,
         0,
         2 * Math.PI
       );
@@ -95,11 +111,12 @@ const drawHands = (hands: any, ctx: any) => {
   }
 
   return {
-    palmX,
-    palmY,
     leftIndexTipX,
     leftIndexTipY,
-    firing,
+    rightIndexTipX,
+    rightIndexTipY,
+    firingLeft,
+    firingRight,
   };
 };
 
