@@ -12,6 +12,8 @@ import {
   setupVideo,
 } from "./helpers/hand-detection";
 import { useRouter } from "next/navigation";
+import GameplayReticle from "@/components/GameplayReticle";
+import Enemy from "@/components/Enemy";
 
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm`
@@ -101,26 +103,28 @@ const Gameplay = () => {
         bg="orange"
         my="30px"
         position="relative"
+        overflow="hidden"
       >
+        <Enemy
+          reticle1X={(leftIndexXPos / cameraMaxWidth) * 100 - 5}
+          reticle1Y={(leftIndexYPos / cameraMaxHeight) * 100}
+          reticle2X={(rightIndexXPos / cameraMaxWidth) * 100 - 5}
+          reticle2Y={(rightIndexYPos / cameraMaxHeight) * 100}
+        />
+
         {/* Right Target Reticle */}
-        <Box
-          borderRadius="full"
-          bg="red"
-          boxSize="30px"
-          top={`${(rightIndexYPos / cameraMaxHeight) * 100}%`}
-          right={`${(rightIndexXPos / cameraMaxWidth) * 100 - 5}%`}
-          position="absolute"
-        ></Box>
+        <GameplayReticle
+          top={(rightIndexYPos / cameraMaxHeight) * 100}
+          right={(rightIndexXPos / cameraMaxWidth) * 100 - 5}
+          colour="red"
+        />
 
         {/* Left Target Reticle */}
-        <Box
-          borderRadius="full"
-          bg="purple"
-          boxSize="30px"
-          top={`${(leftIndexYPos / cameraMaxHeight) * 100}%`}
-          right={`${(leftIndexXPos / cameraMaxWidth) * 100 - 5}%`}
-          position="absolute"
-        ></Box>
+        <GameplayReticle
+          top={(leftIndexYPos / cameraMaxHeight) * 100}
+          right={(leftIndexXPos / cameraMaxWidth) * 100 - 5}
+          colour="purple"
+        />
       </Center>
       <Center
         mt="auto"
