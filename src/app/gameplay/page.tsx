@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import { Center, Text, Button, Box } from "@chakra-ui/react";
+import { Center, Text, Button } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-webgl";
 import { drawHands } from "@/lib/utils";
@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import GameplayReticle from "@/components/GameplayReticle";
 import Enemy from "@/components/Enemy";
+import { range } from "lodash";
 
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm`
@@ -87,8 +88,8 @@ const Gameplay = () => {
     setLeftIndexXPos(rightIndexTipX);
     setLeftIndexYPos(rightIndexTipY);
 
-    setFiringLeft(firingLeft);
-    setFiringRight(firingRight);
+    setFiringLeft(firingRight);
+    setFiringRight(firingLeft);
   }, !!(detectorRef.current && videoRef.current && ctx));
 
   return (
@@ -105,12 +106,16 @@ const Gameplay = () => {
         position="relative"
         overflow="hidden"
       >
-        <Enemy
-          reticle1X={(leftIndexXPos / cameraMaxWidth) * 100 - 5}
-          reticle1Y={(leftIndexYPos / cameraMaxHeight) * 100}
-          reticle2X={(rightIndexXPos / cameraMaxWidth) * 100 - 5}
-          reticle2Y={(rightIndexYPos / cameraMaxHeight) * 100}
-        />
+        {range(10).map(() => (
+          <Enemy
+            reticle1X={(leftIndexXPos / cameraMaxWidth) * 100}
+            reticle1Y={(leftIndexYPos / cameraMaxHeight) * 100}
+            reticle2X={(rightIndexXPos / cameraMaxWidth) * 100}
+            reticle2Y={(rightIndexYPos / cameraMaxHeight) * 100}
+            firingLeft={firingLeft}
+            firingRight={firingRight}
+          />
+        ))}
 
         {/* Right Target Reticle */}
         <GameplayReticle

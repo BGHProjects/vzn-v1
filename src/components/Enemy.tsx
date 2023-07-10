@@ -1,18 +1,29 @@
+import detectionCollision from "@/lib/helpers/detectCollision";
 import getRandomNumber from "@/lib/helpers/getRandomNumber";
 import { Box } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 
 const enemySize = 40;
-const movementRange = 5;
+const movementRange = 3;
+const collisionThreshold = 5;
 
 interface IEnemy {
   reticle1X: number;
   reticle1Y: number;
   reticle2X: number;
   reticle2Y: number;
+  firingRight: boolean;
+  firingLeft: boolean;
 }
 
-const Enemy = ({ reticle1X, reticle1Y, reticle2X, reticle2Y }: IEnemy) => {
+const Enemy = ({
+  reticle1X,
+  reticle1Y,
+  reticle2X,
+  reticle2Y,
+  firingLeft,
+  firingRight,
+}: IEnemy) => {
   const [top, setTop] = useState(getRandomNumber(20, 80));
   const [left, setLeft] = useState(getRandomNumber(20, 80));
   const [alive, setAlive] = useState(true);
@@ -38,6 +49,27 @@ const Enemy = ({ reticle1X, reticle1Y, reticle2X, reticle2Y }: IEnemy) => {
     const interval = setInterval(moveBox, 100);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const leftHit = detectionCollision(
+      reticle1X,
+      reticle1Y,
+      top,
+      left,
+      firingLeft,
+      collisionThreshold
+    );
+    const rightHit = detectionCollision(
+      reticle2X,
+      reticle2Y,
+      top,
+      left,
+      firingRight,
+      collisionThreshold
+    );
+
+    if (leftHit || rightHit) setAlive(false);
+  }, [reticle1X, reticle1Y, reticle2X, reticle2Y, left, top]);
 
   return (
     alive && (
