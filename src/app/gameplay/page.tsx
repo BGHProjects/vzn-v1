@@ -40,6 +40,26 @@ const Gameplay = () => {
   const [firingLeft, setFiringLeft] = useState(false);
   const [firingRight, setFiringRight] = useState(false);
 
+  const [playingGame, setPlayingGame] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(false);
+  const [readyToPlay, setReadyToPlay] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  const [enemies, setEnemies] = useState([]);
+  const [aliveEnemyCount, setAliveEnemyCount] = useState(0);
+
+  const spawnEnemy = () => {
+    setAliveEnemyCount((prev) => prev + 1);
+  };
+
+  const handleEnemyKilled = () => {
+    setAliveEnemyCount((prev) => prev - 1);
+  };
+
+  useEffect(() => {
+    setEnemies((prev) => [...range(aliveEnemyCount)]);
+  }, [aliveEnemyCount]);
+
   const initalise = async () => {
     videoRef.current = await setupVideo();
     const ctx = await setupCanvas(videoRef.current);
@@ -49,8 +69,32 @@ const Gameplay = () => {
   };
 
   useEffect(() => {
+    if (playingGame && !aliveEnemyCount) {
+      setGameOver(true);
+    }
+  }, [aliveEnemyCount]);
+
+  useEffect(() => {
     initalise();
   }, []);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      setReadyToPlay(true);
+    }
+  }, [videoRef.current]);
+
+  useEffect(() => {
+    if (readyToPlay) setShowPlayButton(true);
+  }, [readyToPlay]);
+
+  useEffect(() => {
+    if (playingGame) {
+      range(5).forEach(() => {
+        spawnEnemy();
+      });
+    }
+  }, [playingGame]);
 
   useAnimationFrame(async (delta: any) => {
     const hands = await detectorRef.current.estimateHands(video, {
@@ -92,6 +136,11 @@ const Gameplay = () => {
     setFiringRight(firingLeft);
   }, !!(detectorRef.current && videoRef.current && ctx));
 
+  const handleStartGame = () => {
+    setShowPlayButton(false);
+    setPlayingGame(true);
+  };
+
   return (
     <Center w="100vw" h="100vh" bg="black" flexDirection={"column"}>
       <Button w="200px" mt="20px" onClick={() => router.push("/")}>
@@ -106,7 +155,15 @@ const Gameplay = () => {
         position="relative"
         overflow="hidden"
       >
-        {range(10).map(() => (
+        {showPlayButton && readyToPlay && (
+          <Button w="200px" onClick={handleStartGame}>
+            Start Game
+          </Button>
+        )}
+
+        {gameOver && <Text>Game Over</Text>}
+
+        {enemies.map((enemy, index) => (
           <Enemy
             reticle1X={(leftIndexXPos / cameraMaxWidth) * 100}
             reticle1Y={(leftIndexYPos / cameraMaxHeight) * 100}
@@ -114,6 +171,9 @@ const Gameplay = () => {
             reticle2Y={(rightIndexYPos / cameraMaxHeight) * 100}
             firingLeft={firingLeft}
             firingRight={firingRight}
+            playingGame={playingGame}
+            key={index}
+            onKilled={handleEnemyKilled} // Assign a unique key to each enemy
           />
         ))}
 

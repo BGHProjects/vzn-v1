@@ -14,6 +14,8 @@ interface IEnemy {
   reticle2Y: number;
   firingRight: boolean;
   firingLeft: boolean;
+  playingGame: boolean;
+  onKilled: () => void;
 }
 
 const Enemy = ({
@@ -23,6 +25,8 @@ const Enemy = ({
   reticle2Y,
   firingLeft,
   firingRight,
+  playingGame,
+  onKilled,
 }: IEnemy) => {
   const [top, setTop] = useState(getRandomNumber(20, 80));
   const [left, setLeft] = useState(getRandomNumber(20, 80));
@@ -46,32 +50,41 @@ const Enemy = ({
   };
 
   useEffect(() => {
-    const interval = setInterval(moveBox, 100);
-    return () => clearInterval(interval);
-  }, []);
+    if (playingGame) {
+      const interval = setInterval(moveBox, 100);
+      return () => clearInterval(interval);
+    }
+  }, [playingGame]);
 
   useEffect(() => {
-    const leftHit = detectionCollision(
-      reticle1X,
-      reticle1Y,
-      top,
-      left,
-      firingLeft,
-      collisionThreshold
-    );
-    const rightHit = detectionCollision(
-      reticle2X,
-      reticle2Y,
-      top,
-      left,
-      firingRight,
-      collisionThreshold
-    );
+    if (playingGame) {
+      const leftHit = detectionCollision(
+        reticle1X,
+        reticle1Y,
+        left,
+        top,
+        firingLeft,
+        collisionThreshold
+      );
 
-    if (leftHit || rightHit) setAlive(false);
-  }, [reticle1X, reticle1Y, reticle2X, reticle2Y, left, top]);
+      const rightHit = detectionCollision(
+        reticle2X,
+        reticle2Y,
+        left,
+        top,
+        firingRight,
+        collisionThreshold
+      );
+
+      if (leftHit || rightHit) {
+        setAlive(false);
+        onKilled();
+      }
+    }
+  }, [reticle1X, reticle1Y, reticle2X, reticle2Y, left, top, playingGame]);
 
   return (
+    playingGame &&
     alive && (
       <Box
         position="absolute"
