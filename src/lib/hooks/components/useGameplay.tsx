@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 import { useEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-webgl";
 import { drawHands } from "@/lib/utils";
@@ -11,6 +11,7 @@ import {
   setupDetector,
   setupVideo,
 } from "@/app/gameplay/helpers/hand-detection";
+import { useTimer } from "react-timer-hook";
 
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm`
@@ -40,6 +41,21 @@ const useGameplay = () => {
   const [enemies, setEnemies] = useState<any>([]);
   const [aliveEnemyCount, setAliveEnemyCount] = useState(0);
 
+  const timeLimit = new Date();
+  timeLimit.setSeconds(timeLimit.getSeconds() + 60);
+
+  const {
+    seconds,
+    minutes,
+    hours,
+    days,
+    isRunning,
+    start,
+    pause,
+    resume,
+    restart,
+  } = useTimer({ expiryTimestamp: timeLimit, autoStart: false });
+
   const spawnEnemy = () => {
     setAliveEnemyCount((prev) => prev + 1);
   };
@@ -67,6 +83,10 @@ const useGameplay = () => {
   }, [aliveEnemyCount]);
 
   useEffect(() => {
+    const timeLimit = new Date();
+    timeLimit.setSeconds(timeLimit.getSeconds() + 60);
+
+    restart(timeLimit, false);
     initalise();
   }, []);
 
@@ -131,6 +151,7 @@ const useGameplay = () => {
   const handleStartGame = () => {
     setShowPlayButton(false);
     setPlayingGame(true);
+    start();
   };
 
   return {
@@ -149,6 +170,8 @@ const useGameplay = () => {
       gameOver,
       videoWidth,
       router,
+      seconds,
+      minutes,
     },
     functions: {
       handleEnemyKilled,

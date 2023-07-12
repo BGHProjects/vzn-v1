@@ -33,6 +33,8 @@ const Gameplay = () => {
     gameOver,
     videoWidth,
     router,
+    seconds,
+    minutes,
   } = variables;
 
   const { handleEnemyKilled, handleStartGame } = functions;
@@ -42,6 +44,11 @@ const Gameplay = () => {
       <Button w="200px" mt="20px" onClick={() => router.push("/")}>
         Return to Main Menu
       </Button>
+
+      <Text color="white">
+        {minutes}:{seconds}
+      </Text>
+
       <Center
         w="80vw"
         maxW="800px"
@@ -52,7 +59,7 @@ const Gameplay = () => {
         overflow="hidden"
       >
         {showPlayButton && readyToPlay && (
-          <Button w="200px" onClick={handleStartGame}>
+          <Button w="200px" onClick={() => handleStartGame()}>
             Start Game
           </Button>
         )}
