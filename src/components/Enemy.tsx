@@ -1,7 +1,7 @@
-import detectionCollision from "@/lib/helpers/detectCollision";
-import getRandomNumber from "@/lib/helpers/getRandomNumber";
 import { Box } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
+import getRandomNumber from "../lib/helpers/getRandomNumber";
+import detectionCollision from "../lib/helpers/detectCollision";
 
 const enemySize = 40;
 const movementRange = 3;
