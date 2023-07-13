@@ -18,6 +18,8 @@ tfjsWasm.setWasmPaths(
 );
 
 const useGameplay = () => {
+  const gameTimeLimit = 20;
+
   const router = useRouter();
   const videoWidth = 20;
 
@@ -37,12 +39,13 @@ const useGameplay = () => {
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [readyToPlay, setReadyToPlay] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [playerScore, setPlayerScore] = useState(0);
 
   const [enemies, setEnemies] = useState<any>([]);
   const [aliveEnemyCount, setAliveEnemyCount] = useState(0);
 
   const timeLimit = new Date();
-  timeLimit.setSeconds(timeLimit.getSeconds() + 60);
+  timeLimit.setSeconds(timeLimit.getSeconds() + gameTimeLimit);
 
   const {
     seconds,
@@ -56,17 +59,9 @@ const useGameplay = () => {
     restart,
   } = useTimer({ expiryTimestamp: timeLimit, autoStart: false });
 
-  const spawnEnemy = () => {
-    setAliveEnemyCount((prev) => prev + 1);
-  };
-
   const handleEnemyKilled = () => {
-    setAliveEnemyCount((prev) => prev - 1);
+    setPlayerScore((prev) => prev + 1);
   };
-
-  useEffect(() => {
-    setEnemies((prev: any) => [...range(aliveEnemyCount)]);
-  }, [aliveEnemyCount]);
 
   const initalise = async () => {
     videoRef.current = await setupVideo();
@@ -76,15 +71,21 @@ const useGameplay = () => {
     setCtx(ctx);
   };
 
+  const spawnEnemy = () => {
+    setAliveEnemyCount((prev) => prev + 1);
+  };
+
   useEffect(() => {
-    if (playingGame && !aliveEnemyCount) {
-      setGameOver(true);
-    }
+    setEnemies((prev: any) => [...range(aliveEnemyCount)]);
   }, [aliveEnemyCount]);
 
   useEffect(() => {
+    if (seconds === 0 && minutes === 0) setGameOver(true);
+  }, [seconds, minutes]);
+
+  useEffect(() => {
     const timeLimit = new Date();
-    timeLimit.setSeconds(timeLimit.getSeconds() + 60);
+    timeLimit.setSeconds(timeLimit.getSeconds() + gameTimeLimit);
 
     restart(timeLimit, false);
     initalise();
@@ -100,13 +101,36 @@ const useGameplay = () => {
     if (readyToPlay) setShowPlayButton(true);
   }, [readyToPlay]);
 
+  /**
+   * Spawns enemies when the game is running
+   */
   useEffect(() => {
+    let interval;
+
     if (playingGame) {
       range(5).forEach(() => {
         spawnEnemy();
       });
+
+      interval = setInterval(() => {
+        spawnEnemy();
+      }, 1000);
     }
+
+    return () => clearInterval(interval);
   }, [playingGame]);
+
+  useEffect(() => {
+    if (gameOver) {
+      const timeLimit = new Date();
+      timeLimit.setSeconds(timeLimit.getSeconds() + gameTimeLimit);
+
+      restart(timeLimit, false);
+      setShowPlayButton(true);
+      setPlayingGame(false);
+      setAliveEnemyCount(0);
+    }
+  }, [gameOver]);
 
   useAnimationFrame(async (delta: any) => {
     const hands = await detectorRef.current.estimateHands(video, {
@@ -149,6 +173,7 @@ const useGameplay = () => {
   }, !!(detectorRef.current && videoRef.current && ctx));
 
   const handleStartGame = () => {
+    setGameOver(false);
     setShowPlayButton(false);
     setPlayingGame(true);
     start();
@@ -172,6 +197,7 @@ const useGameplay = () => {
       router,
       seconds,
       minutes,
+      playerScore,
     },
     functions: {
       handleEnemyKilled,

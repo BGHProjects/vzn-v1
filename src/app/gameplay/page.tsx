@@ -1,7 +1,7 @@
 "use client";
 import Enemy from "@/components/Enemy";
 import GameplayReticle from "@/components/GameplayReticle";
-import { Button, Center, Text } from "@chakra-ui/react";
+import { Button, Center, Text, VStack } from "@chakra-ui/react";
 import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 import "@tensorflow/tfjs-backend-webgl";
 
@@ -35,6 +35,7 @@ const Gameplay = () => {
     router,
     seconds,
     minutes,
+    playerScore,
   } = variables;
 
   const { handleEnemyKilled, handleStartGame } = functions;
@@ -46,7 +47,10 @@ const Gameplay = () => {
       </Button>
 
       <Text color="white">
-        {minutes}:{seconds}
+        {minutes}:
+        {seconds.toString().length === 1
+          ? seconds.toString().padStart(2, "0")
+          : seconds}
       </Text>
 
       <Center
@@ -58,13 +62,15 @@ const Gameplay = () => {
         position="relative"
         overflow="hidden"
       >
-        {showPlayButton && readyToPlay && (
-          <Button w="200px" onClick={() => handleStartGame()}>
-            Start Game
-          </Button>
-        )}
+        <VStack>
+          {gameOver && <Text>Game Over</Text>}
 
-        {gameOver && <Text>Game Over</Text>}
+          {showPlayButton && readyToPlay && (
+            <Button w="200px" onClick={() => handleStartGame()}>
+              Start Game
+            </Button>
+          )}
+        </VStack>
 
         {enemies.map((enemy: any, index: number) => (
           <Enemy
