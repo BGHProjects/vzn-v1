@@ -47,17 +47,10 @@ const useGameplay = () => {
   const timeLimit = new Date();
   timeLimit.setSeconds(timeLimit.getSeconds() + gameTimeLimit);
 
-  const {
-    seconds,
-    minutes,
-    hours,
-    days,
-    isRunning,
-    start,
-    pause,
-    resume,
-    restart,
-  } = useTimer({ expiryTimestamp: timeLimit, autoStart: false });
+  const { seconds, minutes, start, restart } = useTimer({
+    expiryTimestamp: timeLimit,
+    autoStart: false,
+  });
 
   const handleEnemyKilled = () => {
     setPlayerScore((prev) => prev + 1);
@@ -114,7 +107,7 @@ const useGameplay = () => {
 
       interval = setInterval(() => {
         spawnEnemy();
-      }, 1000);
+      }, 2000);
     }
 
     return () => clearInterval(interval);
@@ -176,6 +169,7 @@ const useGameplay = () => {
     setGameOver(false);
     setShowPlayButton(false);
     setPlayingGame(true);
+    setPlayerScore(0);
     start();
   };
 

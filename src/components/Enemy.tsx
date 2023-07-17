@@ -58,6 +58,14 @@ const Enemy = ({
 
   useEffect(() => {
     if (playingGame) {
+      if (
+        Math.abs(reticle1X - left) > 10 &&
+        Math.abs(reticle2X - left) > 10 &&
+        Math.abs(reticle1Y - top) > 10 &&
+        Math.abs(reticle2Y - top) > 10
+      )
+        return;
+
       const leftHit = detectionCollision(
         reticle1X,
         reticle1Y,
@@ -76,7 +84,7 @@ const Enemy = ({
         collisionThreshold
       );
 
-      if (leftHit || rightHit) {
+      if ((leftHit || rightHit) && alive) {
         setAlive(false);
         onKilled();
       }

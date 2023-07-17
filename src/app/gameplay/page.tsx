@@ -1,11 +1,13 @@
 "use client";
 import Enemy from "@/components/Enemy";
 import GameplayReticle from "@/components/GameplayReticle";
-import { Button, Center, Text, VStack } from "@chakra-ui/react";
+import { Center, Flex, Text, VStack } from "@chakra-ui/react";
 import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 import "@tensorflow/tfjs-backend-webgl";
 
 import useGameplay from "@/lib/hooks/components/useGameplay";
+import AppButton from "@/components/AppButton";
+import { bgColour } from "@/lib/consts/consts";
 
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm`
@@ -41,34 +43,72 @@ const Gameplay = () => {
   const { handleEnemyKilled, handleStartGame } = functions;
 
   return (
-    <Center w="100vw" h="100vh" bg="black" flexDirection={"column"}>
-      <Button w="200px" mt="20px" onClick={() => router.push("/")}>
-        Return to Main Menu
-      </Button>
+    <Center w="100vw" h="100vh" bg={bgColour} flexDirection={"column"}>
+      <Center mt="20px" h="50px">
+        <AppButton
+          width={250}
+          height={40}
+          label="Return to Main Menu"
+          action={() => router.push("/")}
+        />
+      </Center>
 
-      <Text color="white">
-        {minutes}:
-        {seconds.toString().length === 1
-          ? seconds.toString().padStart(2, "0")
-          : seconds}
-      </Text>
+      <Flex
+        w="80vw"
+        maxW="800px"
+        justifyContent="space-between"
+        py="3px"
+        px="10px"
+      >
+        {playingGame && (
+          <Text color="white" fontSize="20px">
+            {minutes}:
+            {seconds.toString().length === 1
+              ? seconds.toString().padStart(2, "0")
+              : seconds}
+          </Text>
+        )}
+
+        {playingGame && (
+          <Text color="white" fontSize="20px">
+            SCORE: {playerScore}
+          </Text>
+        )}
+      </Flex>
 
       <Center
         w="80vw"
         maxW="800px"
         h="100%"
-        bg="orange"
-        my="30px"
+        bg="black"
+        mb="30px"
         position="relative"
         overflow="hidden"
+        border="1px solid white"
+        borderRadius="5px"
       >
         <VStack>
-          {gameOver && <Text>Game Over</Text>}
+          {gameOver && (
+            <VStack my="20px">
+              <Text color="white" fontSize="30px">
+                Game Over
+              </Text>
+
+              <Text color="white" fontSize="20px">
+                SCORE: {playerScore}
+              </Text>
+            </VStack>
+          )}
 
           {showPlayButton && readyToPlay && (
-            <Button w="200px" onClick={() => handleStartGame()}>
-              Start Game
-            </Button>
+            <Center h="60px">
+              <AppButton
+                width={200}
+                height={60}
+                label="Start Game"
+                action={() => handleStartGame()}
+              />
+            </Center>
           )}
         </VStack>
 
@@ -81,8 +121,8 @@ const Gameplay = () => {
             firingLeft={firingLeft}
             firingRight={firingRight}
             playingGame={playingGame}
-            key={index}
-            onKilled={handleEnemyKilled} // Assign a unique key to each enemy
+            key={index} // Assign a unique key to each enemy
+            onKilled={handleEnemyKilled}
           />
         ))}
 
@@ -105,7 +145,7 @@ const Gameplay = () => {
         mb="20px"
         w={`${videoWidth}vw`}
         h={`${videoWidth * (2 / 3)}vw`}
-        bg="navy"
+        bg="black"
         borderRadius="10px"
         position="relative"
       >
