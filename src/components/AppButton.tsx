@@ -54,7 +54,7 @@ const AppButton = ({
         width: `${width}px`,
         height: `${height}px`,
         borderRadius: "10px",
-        border: "3px solid white",
+        border: "2px solid white",
         zIndex: "2",
         position: "relative",
         opacity: 0,
@@ -88,12 +88,13 @@ const AppButton = ({
         },
       }}
     >
-      <Center boxSize="100%" bg="rgba(0,0,0,0.5)" borderRadius="5px">
+      <Center boxSize="100%" bg="rgba(0,0,0,0.5)" borderRadius="10px">
         <motion.span
           style={{
             fontSize: 20,
             color: "white",
             textAlign: "center",
+            fontFamily: "Tektur",
           }}
           animate={{
             opacity: [0, 1],

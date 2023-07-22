@@ -100,7 +100,7 @@ const Enemy = ({
         left={`${left}%`}
         boxSize={`${enemySize}px`}
         borderRadius="full"
-        backgroundColor="dodgerblue"
+        backgroundColor="purple"
       />
     )
   );

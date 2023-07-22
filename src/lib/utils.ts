@@ -1,11 +1,3 @@
-const FINGER_LOOKUP_INDICES: Record<string, number[]> = {
-  thumb: [0, 1, 2, 3, 4],
-  indexFinger: [0, 5, 6, 7, 8],
-  middleFinger: [0, 9, 10, 11, 12],
-  ringFinger: [0, 13, 14, 15, 16],
-  pinky: [0, 17, 18, 19, 20],
-};
-
 const mfd = "middle_finger_dip";
 const mft = "middle_finger_tip";
 const ift = "index_finger_tip";
@@ -28,8 +20,6 @@ const drawHands = (hands: any, ctx: any) => {
   for (let i = 0; i < hands.length; i++) {
     const rightHand = hands[i].handedness === "Right";
     const leftHand = hands[i].handedness === "Left";
-
-    ctx.fillStyle = leftHand ? "black" : "Blue";
 
     for (let y = 0; y < hands[i].keypoints.length; y++) {
       const keypoint = hands[i].keypoints[y];
@@ -78,9 +68,9 @@ const drawHands = (hands: any, ctx: any) => {
       }
 
       ctx.fillStyle = isLeftIndexTip
-        ? "red"
+        ? "#FF5600"
         : isRightIndexTip
-        ? "purple"
+        ? "dodgerblue"
         : isLeftMiddleTip || isRightMiddleTip
         ? "gold"
         : "black";
@@ -107,15 +97,6 @@ const drawHands = (hands: any, ctx: any) => {
         ctx.fill();
       }
     }
-
-    // const fingers = Object.keys(FINGER_LOOKUP_INDICES);
-    // for (let z = 0; z < fingers.length; z++) {
-    //   const finger = fingers[z];
-    //   const points = FINGER_LOOKUP_INDICES[finger].map(
-    //     (idx: number) => hands[i].keypoints[idx]
-    //   );
-    //   drawPath(points, ctx);
-    // }
   }
 
   return {
@@ -128,19 +109,4 @@ const drawHands = (hands: any, ctx: any) => {
   };
 };
 
-const drawPath = (points: any, ctx: any, closePath = false) => {
-  const region = new Path2D();
-  region.moveTo(points[0]?.x, points[0]?.y);
-  for (let i = 1; i < points.length; i++) {
-    const point = points[i];
-    region.lineTo(point?.x, point?.y);
-  }
-
-  if (closePath) {
-    region.closePath();
-  }
-
-  ctx.stroke(region);
-};
-
-export { drawHands, drawPath };
+export { drawHands };

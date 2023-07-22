@@ -1,7 +1,7 @@
 "use client";
 import Enemy from "@/components/Enemy";
 import GameplayReticle from "@/components/GameplayReticle";
-import { Center, Flex, Text, VStack } from "@chakra-ui/react";
+import { Center, Flex, Text, VStack, chakra } from "@chakra-ui/react";
 import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 import "@tensorflow/tfjs-backend-webgl";
 
@@ -61,19 +61,15 @@ const Gameplay = () => {
         px="10px"
       >
         {playingGame && (
-          <Text color="white" fontSize="20px">
+          <StandardText>
             {minutes}:
             {seconds.toString().length === 1
               ? seconds.toString().padStart(2, "0")
               : seconds}
-          </Text>
+          </StandardText>
         )}
 
-        {playingGame && (
-          <Text color="white" fontSize="20px">
-            SCORE: {playerScore}
-          </Text>
-        )}
+        {playingGame && <StandardText>SCORE: {playerScore}</StandardText>}
       </Flex>
 
       <Center
@@ -90,13 +86,9 @@ const Gameplay = () => {
         <VStack>
           {gameOver && (
             <VStack my="20px">
-              <Text color="white" fontSize="30px">
-                Game Over
-              </Text>
+              <StandardText fontSize="30px">Game Over</StandardText>
 
-              <Text color="white" fontSize="20px">
-                SCORE: {playerScore}
-              </Text>
+              <StandardText>SCORE: {playerScore}</StandardText>
             </VStack>
           )}
 
@@ -130,14 +122,16 @@ const Gameplay = () => {
         <GameplayReticle
           top={(rightIndexYPos / cameraMaxHeight) * 100}
           right={(rightIndexXPos / cameraMaxWidth) * 100 - 5}
-          colour="red"
+          colour="#FF5600"
+          firing={firingRight}
         />
 
         {/* Left Target Reticle */}
         <GameplayReticle
           top={(leftIndexYPos / cameraMaxHeight) * 100}
           right={(leftIndexXPos / cameraMaxWidth) * 100 - 5}
-          colour="purple"
+          colour="dodgerblue"
+          firing={firingLeft}
         />
       </Center>
       <Center
@@ -156,9 +150,7 @@ const Gameplay = () => {
             transform="translate(-50%, 0)"
             boxSize="100%"
           >
-            <Text fontSize="20px" color="white">
-              Loading video...
-            </Text>
+            <StandardText>Loading video...</StandardText>
           </Center>
         )}
 
@@ -189,5 +181,13 @@ const Gameplay = () => {
     </Center>
   );
 };
+
+const StandardText = chakra(Text, {
+  baseStyle: {
+    color: "white",
+    fontSize: "20px",
+    fontFamily: "Tektur",
+  },
+});
 
 export default Gameplay;

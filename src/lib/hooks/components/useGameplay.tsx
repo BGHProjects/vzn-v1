@@ -161,8 +161,8 @@ const useGameplay = () => {
     setLeftIndexXPos(rightIndexTipX);
     setLeftIndexYPos(rightIndexTipY);
 
-    setFiringLeft(firingRight);
     setFiringRight(firingLeft);
+    setFiringLeft(firingRight);
   }, !!(detectorRef.current && videoRef.current && ctx));
 
   const handleStartGame = () => {
