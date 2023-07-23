@@ -1,5 +1,5 @@
 <div align="center">
-<a href="https://bghprojects-vzn-v1.vercel.app"><img src="./public/assets/readme/TitleLogo.PNG" width="400" height="100"></a> 
+<a href="https://bghprojects-vzn-v1.vercel.app"><img src="./public/assets/readme/TitleLogo.PNG" ></a> 
 </div>
 
 
