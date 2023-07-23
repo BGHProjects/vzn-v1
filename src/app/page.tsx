@@ -45,7 +45,7 @@ const HomePage = () => {
         />
       </VStack>
       {range(50).map((ship) => (
-        <SplashEnemy />
+        <SplashEnemy key={ship} />
       ))}
       {showHowToPlay && (
         <HowToPlay closeFunction={() => setShowHowToPlay(false)} />
