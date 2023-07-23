@@ -1,11 +1,16 @@
 "use client";
 import AppButton from "@/components/AppButton";
+import HowToPlay from "@/components/HowToPlay";
+import SplashEnemy from "@/components/SplashEnemy";
 import { bgColour } from "@/lib/consts/consts";
 import { Center, Text, VStack } from "@chakra-ui/react";
+import { range } from "lodash";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const HomePage = () => {
   const router = useRouter();
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   const goToGameplay = () => router.push("/gameplay");
 
@@ -15,8 +20,15 @@ const HomePage = () => {
   };
 
   return (
-    <Center w="100vw" h="100vh" bg={bgColour} flexDirection="column">
-      <Text fontSize="60px" color="white" fontFamily="Tektur">
+    <Center
+      w="100vw"
+      h="100vh"
+      bg={bgColour}
+      flexDirection="column"
+      overflow="hidden"
+      position="relative"
+    >
+      <Text fontSize="150px" color="white" fontFamily="Tektur">
         VZN
       </Text>
       <VStack mt="60px" spacing="20px" height="200">
@@ -27,11 +39,17 @@ const HomePage = () => {
         />
         <AppButton
           {...commonStyles}
-          action={() => alert("Not yet implemented")}
+          action={() => setShowHowToPlay(!showHowToPlay)}
           label="How to Play"
           animationDelay={0.1}
         />
       </VStack>
+      {range(50).map((ship) => (
+        <SplashEnemy />
+      ))}
+      {showHowToPlay && (
+        <HowToPlay closeFunction={() => setShowHowToPlay(false)} />
+      )}
     </Center>
   );
 };

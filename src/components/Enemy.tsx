@@ -1,9 +1,9 @@
-import { Box } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import getRandomNumber from "../lib/helpers/getRandomNumber";
 import detectionCollision from "../lib/helpers/detectCollision";
 
-const enemySize = 40;
+const enemySize = 60;
 const movementRange = 3;
 const collisionThreshold = 5;
 
@@ -31,11 +31,19 @@ const Enemy = ({
   const [top, setTop] = useState(getRandomNumber(20, 80));
   const [left, setLeft] = useState(getRandomNumber(20, 80));
   const [alive, setAlive] = useState(true);
+  const [whichSpaceShip] = useState(getRandomNumber(1, 5));
+  const [rotation, setRotation] = useState(0);
 
   const xDelta = getRandomNumber(-movementRange, movementRange);
   const yDelta = getRandomNumber(-movementRange, movementRange);
 
   const moveBox = () => {
+    if (rotation === 0) {
+      const angleRad = Math.atan2(yDelta, xDelta);
+      const angleDeg = (angleRad * 180) / Math.PI;
+      setRotation(angleDeg - 90);
+    }
+
     setLeft((ov) => {
       if (ov < -10) return 100;
       if (ov > 110) return 0;
@@ -94,13 +102,14 @@ const Enemy = ({
   return (
     playingGame &&
     alive && (
-      <Box
+      <Image
+        src={`/assets/images/spaceship${whichSpaceShip}.png`}
         position="absolute"
         top={`${top}%`}
         left={`${left}%`}
         boxSize={`${enemySize}px`}
         borderRadius="full"
-        backgroundColor="purple"
+        transform={`rotate(${rotation}deg)`}
       />
     )
   );

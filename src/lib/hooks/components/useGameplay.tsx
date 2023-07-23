@@ -18,7 +18,7 @@ tfjsWasm.setWasmPaths(
 );
 
 const useGameplay = () => {
-  const gameTimeLimit = 20;
+  const gameTimeLimit = 60;
 
   const router = useRouter();
   const videoWidth = 20;
@@ -107,7 +107,7 @@ const useGameplay = () => {
 
       interval = setInterval(() => {
         spawnEnemy();
-      }, 2000);
+      }, 1000);
     }
 
     return () => clearInterval(interval);
